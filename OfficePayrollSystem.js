@@ -21,12 +21,10 @@ export class OfficePayrollSystem {
   };
 
   findTopKWorkers(k) {
-    console.log(this.workers.sort((a, b) => this.calculateTotalTime(b) - this.calculateTotalTime(a)), "is this right?")
     return this.workers.sort((a, b) => this.calculateTotalTime(b) - this.calculateTotalTime(a)).slice(0, k);
   }
 
   calculateTotalHoursByDateRange(startDate, endDate, worker) {
-
     const workPeriods = [];
     Object.entries(worker["daysWorked"]).map(([date, workData]) => {
       if (new Date(date) >= new Date(startDate) &&
@@ -40,5 +38,14 @@ export class OfficePayrollSystem {
       acc += workPeriod["leave"] - workPeriod["enter"];
       return acc
     }, 0)
+  }
+
+  calculateTotalSalary(worker) {
+    const total = Object.entries(worker.daysWorked).reduce((acc, [date, daysWorkedData]) => {
+        acc += daysWorkedData["moneyEarned"];
+        return acc;
+    }, 0);
+
+    return total;
   }
 }

@@ -3,6 +3,14 @@ const status = {
     IN_OFFICE: 1,
 }
 
+const salaryByPositionByHour = {
+  "associate": 40,
+  "mid-level": 60,
+  "senior": 80,
+};
+
+const afterHours = [18, 24];
+
 export class Worker {
   constructor(id, name, position) {
     this.id  = id
@@ -17,7 +25,12 @@ export class Worker {
     if (this.daysWorked[date]) {
         this.daysWorked[date]["in_office_periods"].push({enter: time, leave: null});
     } else {
-        const workData = {"total": 0, "in_office_periods": [{enter: time, leave: null}]};
+        const workData = {
+          "position": this.position,
+          "moneyEarned": 0,
+          "total": 0,
+          "in_office_periods": [{enter: time, leave: null}]
+        };
         this.daysWorked[date] = workData;
     }
 
@@ -29,7 +42,15 @@ export class Worker {
     const inOfficePeriods = this.daysWorked[date]["in_office_periods"];
     const currInOfficePeriod = inOfficePeriods[inOfficePeriods.length - 1];
     currInOfficePeriod["leave"] = time;
-    this.daysWorked[date]["total"] += parseInt(currInOfficePeriod["leave"]) - parseInt(currInOfficePeriod["enter"]);
+    const currWorkPeriodHours = parseInt(currInOfficePeriod["leave"]) - parseInt(currInOfficePeriod["enter"]);
+    this.daysWorked[date]["total"] += currWorkPeriodHours;
+
+    if (time >= afterHours[0] && time <= afterHours[1]) {
+      this.daysWorked[date]["moneyEarned"] += (currWorkPeriodHours * salaryByPositionByHour[this.position]) * 2;
+    } else {
+      this.daysWorked[date]["moneyEarned"] += currWorkPeriodHours * salaryByPositionByHour[this.position];
+    }
+    
 
     this.status = status["OUT_OF_OFFICE"];
   }
